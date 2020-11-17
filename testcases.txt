@@ -28,6 +28,8 @@ Just (Lambda "x" (Minus (Num 45) (Num 34)))
 Just (Lambda "x" (Minus (Num 45) (Num 45)))
 *Main> evalDynFAE [] (Lambda "x" (Minus (Num 45) (Num 56)))
 Just (Lambda "x" (Minus (Num 45) (Num 56)))
+*Main> evalDynFAE [] (Lambda "inc" (Num 5))
+Just (Lambda "inc" (Num 5))
 
 *Main> evalDynFAE [] (App (Num 5) (Num 6))
 Nothing

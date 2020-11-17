@@ -43,6 +43,9 @@ subst x v (Num n) = Num (evalAE (Num n))
 subst x v (Plus l r) = Num (evalAE (Plus l r)) -- Plus (subst x v l) (subst x v r)
 subst x v (Minus l r) = Num(evalAE (Minus l r))
 subst x v (Lambda i b) = Lambda i (subst x v b)
+--  if i == "inc"
+--    then Num (evalAE (Plus b (Num 1)))
+--    else Lambda i (subst x v b)
 subst x v (Id a) =
   if x == a
     then v
@@ -63,10 +66,7 @@ evalDynFAE e (Id i) = lookup i e
 --    then return (Num 1)
 --    else return i
 
-test0=(App (Lambda "inc" (Id "inc")) (Lambda "x" (Plus (Id "x") (Num 1))))
-test1=(App (Lambda "inc" (App (Id "inc") (Num 3))) (Lambda "x" (Plus (Id "x") (Num 1))))
-test2=(App (Lambda "n" (App (Lambda "inc" (App (Lambda "n" (App (Id "inc") (Num 3))) (Num 3))) (Lambda "x" (Plus (Id "x") (Id "n"))))) (Num 1))
---test3=(App (Lambda "Sum" (App (Id "Sum") (Num 3))) (Lambda "x" (If0 (Id "x") (Num 0) (Plus (Id "x") (App (Id "Sum") (Minus (Id "x") (Num 1)))))))
+
 
 data FAEValue where
   NumV :: Int -> FAEValue
