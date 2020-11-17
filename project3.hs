@@ -147,32 +147,33 @@ elabFBAEC (TrueE) =
 
 elabFBAEC (FalseE) =
  let i = "bool"
-   t = (Num 1)
-   f = (Num 0)
+     t = (Num 1)
+     f = (Num 0)
   in App (App (Lambda i (Lambda i f)) t) t
 
 elabFBAEC (AndE x y) =
- let i = "bool"
-   t = (Num 1)
-   f = (Num 0)
-  in App (App (Lambda "x" (Lambda "y" x)) y) f
+ let i = "x"
+     j = "y"
+     t = (Num 1)
+     f = (Num 0)
+  in App (App (Lambda i (Lambda j (elabFBAEC x) )) (elabFBAEC y)) f
 
 elabFBAEC (OrE x y) =
- let i = "bool"
-   t = (Num 1)
-   f = (Num 0)
-  in App (App (Lambda "x" (Lambda "y" x)) t) y
+ let i = "x"
+     j = "y"
+     t = (Num 1)
+     f = (Num 0)
+  in App (App (Lambda i (Lambda j (elabFBAEC x) )) t) (elabFBAEC y)
 
 elabFBAEC (NotE x) =
- let i = "bool"
-   t = (Num 1)
-   f = (Num 0)
-  in App (Lambda "x" x) f
+ let i = "x"
+     f = (Num 0)
+  in App (Lambda i (elabFBAEC x) ) f
 
 elabFBAEC (IfE c t e) =
-if elabFBAEC c == Num 1 -- if c == TrueE
-  then elabFBAEC t
-  else elabFBAEC e
+  if elabFBAEC c == elabFBAEC (TrueE)-- if c == TrueE
+    then elabFBAEC t
+    else elabFBAEC e
 
 elabFBAEC (LambdaE s a) = Lambda s (elabFBAEC a)
 elabFBAEC (AppE f a) = App (elabFBAEC f) (elabFBAEC a)

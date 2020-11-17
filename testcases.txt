@@ -94,7 +94,6 @@ Just (ClosureV "x" (Id "x") [])
 
 
 
-
 -- 3.1. elabFBAE Test Cases
 *Main> elabFBAE (NumD 5)
 Num 5
@@ -139,9 +138,24 @@ Just (NumV *** Exception: ERROR: Resulting Difference must be Natural
 CallStack (from HasCallStack):
   error, called at project3.hs:39:14 in main:Main
 
+*Main> evalFBAE [] (LambdaD "x" (NumD 14))
+Just (ClosureV "x" (Lambda "x" (Num 14)) [])
+
+*Main> evalFBAE [] (AppD (NumD 56) (NumD 14))
+Just (ClosureV "x" (App (Num 56) (Num 14)) [])
+
+*Main> evalFBAE [] (BindD "y" (NumD 56) (NumD 14))
+Just (ClosureV "x" (App (Lambda "y" (Num 56)) (Num 14)) [])
+
+*Main> evalFBAE [] (IdD "yes")
+Just (ClosureV "yes" (Id "yes") [])
+
 
 
 -- 4.1. elabFBAEC Test Cases
+
+-- Num Test Cases
+
 *Main> elabFBAEC (NumE 4)
 Num 4
 
@@ -155,8 +169,89 @@ Minus (Num 2) (Num 2)
 *Main> elabFBAEC (MinusE (NumE 3) (NumE 2))
 Minus (Num 3) (Num 2)
 
+-- Bool Test Cases
+
 *Main> elabFBAEC (TrueE)
 App (App (Lambda "string" (Lambda "string" (Num 1))) (Num 0)) (Num 1)
+
+*Main> elabFBAEC (FalseE)
+App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)
+
+*Main> elabFBAEC (AndE TrueE TrueE)
+App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)))) (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1))) (Num 0)
+*Main> elabFBAEC (AndE TrueE FalseE)
+App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)))) (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1))) (Num 0)
+*Main> elabFBAEC (AndE FalseE TrueE)
+App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)))) (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1))) (Num 0)
+*Main> elabFBAEC (AndE FalseE FalseE)
+App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)))) (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1))) (Num 0)
+
+*Main> elabFBAEC (AndE TrueE (NumE 5))
+App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)))) (Num 5)) (Num 0)
+
+*Main> elabFBAEC (OrE TrueE TrueE)
+App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)))) (Num 1)) (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1))
+*Main> elabFBAEC (OrE TrueE FalseE)
+App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)))) (Num 1)) (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1))
+*Main> elabFBAEC (OrE FalseE TrueE)
+App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)))) (Num 1)) (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1))
+*Main> elabFBAEC (OrE FalseE FalseE)
+App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)))) (Num 1)) (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1))
+
+*Main> elabFBAEC (OrE TrueE (NumE 5))
+App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)))) (Num 1)) (Num 5)
+
+*Main> elabFBAEC (NotE TrueE)
+App (Lambda "x" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1))) (Num 0)
+*Main> elabFBAEC (NotE FalseE)
+App (Lambda "x" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1))) (Num 0)
+
+*Main> elabFBAEC (NotE (NumE 10))
+App (Lambda "x" (Num 10)) (Num 0)
+
+*Main> elabFBAEC (IfE TrueE TrueE TrueE)
+App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)
+*Main> elabFBAEC (IfE TrueE TrueE FalseE)
+App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)
+*Main> elabFBAEC (IfE TrueE FalseE TrueE)
+App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)
+*Main> elabFBAEC (IfE TrueE FalseE FalseE)
+App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)
+*Main> elabFBAEC (IfE FalseE TrueE TrueE)
+App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)
+*Main> elabFBAEC (IfE FalseE TrueE FalseE)
+App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)
+*Main> elabFBAEC (IfE FalseE FalseE TrueE)
+App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)
+*Main> elabFBAEC (IfE FalseE FalseE FalseE)
+App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)
+
+*Main> elabFBAEC (IfE TrueE TrueE (NumE 5))
+App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)
+*Main> elabFBAEC (IfE TrueE FalseE (NumE 5))
+App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)
+*Main> elabFBAEC (IfE TrueE (NumE 5) TrueE)
+Num 5
+*Main> elabFBAEC (IfE TrueE (NumE 5) FalseE)
+Num 5
+*Main> elabFBAEC (IfE FalseE TrueE (NumE 5))
+Num 5
+*Main> elabFBAEC (IfE FalseE FalseE (NumE 5))
+Num 5
+*Main> elabFBAEC (IfE FalseE (NumE 5) TrueE)
+App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)
+*Main> elabFBAEC (IfE FalseE (NumE 5) FalseE)
+App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)
+*Main> elabFBAEC (IfE (NumE 5) TrueE TrueE)
+App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)
+*Main> elabFBAEC (IfE (NumE 5) TrueE FalseE)
+App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)
+*Main> elabFBAEC (IfE (NumE 5) FalseE TrueE)
+App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)
+*Main> elabFBAEC (IfE (NumE 5) FalseE FalseE)
+App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)
+
+-- Func Test Cases
 
 *Main> elabFBAEC (LambdaE "two" (NumE 2))
 Lambda "two" (Num 2)
@@ -173,6 +268,9 @@ Id "cruise"
 
 
 -- 4.2. evalFBAEC Test Cases
+
+-- Num Test Cases
+
 *Main> evalFBAEC [] (NumE 5)
 Just (NumV 5)
 
@@ -188,8 +286,114 @@ Just (NumV *** Exception: ERROR: Resulting Difference must be Natural
 CallStack (from HasCallStack):
   error, called at project3.hs:39:14 in main:Main
 
+-- Bool Test Case
+
 *Main> evalFBAEC [] (TrueE)
 Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)) [])
+
+*Main> evalFBAEC [] (FalseE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)) [])
+
+*Main> evalFBAEC [] (AndE TrueE TrueE)
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)))) (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1))) (Num 0)) [])
+*Main> evalFBAEC [] (AndE TrueE FalseE)
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)))) (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1))) (Num 0)) [])
+*Main> evalFBAEC [] (AndE FalseE TrueE)
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)))) (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1))) (Num 0)) [])
+*Main> evalFBAEC [] (AndE FalseE FalseE)
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)))) (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1))) (Num 0)) [])
+
+*Main> evalFBAEC [] (AndE TrueE (NumE 5))
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)))) (Num 5)) (Num 0)) [])
+*Main> evalFBAEC [] (AndE FalseE (NumE 5))
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)))) (Num 5)) (Num 0)) [])
+*Main> evalFBAEC [] (AndE (NumE 4) TrueE)
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (Num 4))) (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1))) (Num 0)) [])
+*Main> evalFBAEC [] (AndE (NumE 4) FalseE)
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (Num 4))) (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1))) (Num 0)) [])
+
+*Main> evalFBAEC [] (OrE TrueE TrueE)
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)))) (Num 1)) (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1))) [])
+*Main> evalFBAEC [] (OrE TrueE FalseE)
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)))) (Num 1)) (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1))) [])
+*Main> evalFBAEC [] (OrE FalseE TrueE)
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)))) (Num 1)) (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1))) [])
+*Main> evalFBAEC [] (OrE FalseE FalseE)
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)))) (Num 1)) (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1))) [])
+
+*Main> evalFBAEC [] (OrE TrueE (NumE 7))
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)))) (Num 1)) (Num 7)) [])
+*Main> evalFBAEC [] (OrE FalseE (NumE 7))
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)))) (Num 1)) (Num 7)) [])
+*Main> evalFBAEC [] (OrE (NumE 7) TrueE)
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (Num 7))) (Num 1)) (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1))) [])
+*Main> evalFBAEC [] (OrE (NumE 7) FalseE)
+Just (ClosureV "x" (App (App (Lambda "x" (Lambda "y" (Num 7))) (Num 1)) (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1))) [])
+
+*Main> evalFBAEC [] (NotE TrueE)
+Just (ClosureV "x" (App (Lambda "x" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1))) (Num 0)) [])
+*Main> evalFBAEC [] (NotE FalseE)
+Just (ClosureV "x" (App (Lambda "x" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1))) (Num 0)) [])
+
+*Main> evalFBAEC [] (NotE (NumE 5))
+Just (ClosureV "x" (App (Lambda "x" (Num 5)) (Num 0)) [])
+*Main> evalFBAEC [] (NotE (PlusE (NumE 5)(NumE 60) ))
+Just (ClosureV "x" (App (Lambda "x" (Plus (Num 5) (Num 60))) (Num 0)) [])
+*Main> evalFBAEC [] (NotE (MinusE (NumE 5)(NumE 60) ))
+Just (ClosureV "x" (App (Lambda "x" (Minus (Num 5) (Num 60))) (Num 0)) [])
+
+*Main> evalFBAEC [] (NotE (LambdaE "x" (NumE 60) ))
+Just (ClosureV "x" (App (Lambda "x" (Lambda "x" (Num 60))) (Num 0)) [])
+*Main> evalFBAEC [] (NotE (AppE (NumE 45) (NumE 60) ))
+Just (ClosureV "x" (App (Lambda "x" (App (Num 45) (Num 60))) (Num 0)) [])
+*Main> evalFBAEC [] (NotE (BindE "ohmy" (NumE 45) (NumE 60) ))
+Just (ClosureV "x" (App (Lambda "x" (App (Lambda "ohmy" (Num 45)) (Num 60))) (Num 0)) [])
+*Main> evalFBAEC [] (NotE (IdE "woah" ))
+Just (ClosureV "x" (App (Lambda "x" (Id "woah")) (Num 0)) [])
+
+*Main> evalFBAEC [] (IfE TrueE TrueE TrueE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)) [])
+*Main> evalFBAEC [] (IfE TrueE TrueE FalseE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)) [])
+*Main> evalFBAEC [] (IfE TrueE FalseE TrueE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)) [])
+*Main> evalFBAEC [] (IfE TrueE FalseE FalseE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)) [])
+*Main> evalFBAEC [] (IfE FalseE TrueE TrueE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)) [])
+*Main> evalFBAEC [] (IfE FalseE TrueE FalseE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)) [])
+*Main> evalFBAEC [] (IfE FalseE FalseE TrueE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)) [])
+*Main> evalFBAEC [] (IfE FalseE FalseE FalseE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)) [])
+
+*Main> evalFBAEC [] (IfE TrueE TrueE (NumE 42))
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)) [])
+*Main> evalFBAEC [] (IfE TrueE FalseE (NumE 42))
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)) [])
+*Main> evalFBAEC [] (IfE TrueE (NumE 42) TrueE)
+Just (NumV 42)
+*Main> evalFBAEC [] (IfE TrueE (NumE 42) FalseE)
+Just (NumV 42)
+*Main> evalFBAEC [] (IfE FalseE TrueE (NumE 42))
+Just (NumV 42)
+*Main> evalFBAEC [] (IfE FalseE FalseE (NumE 42))
+Just (NumV 42)
+*Main> evalFBAEC [] (IfE FalseE (NumE 42) TrueE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)) [])
+*Main> evalFBAEC [] (IfE FalseE (NumE 42) FalseE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)) [])
+*Main> evalFBAEC [] (IfE (NumE 42) TrueE TrueE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)) [])
+*Main> evalFBAEC [] (IfE (NumE 42) TrueE FalseE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)) [])
+*Main> evalFBAEC [] (IfE (NumE 42) FalseE FalseE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 0))) (Num 1)) (Num 1)) [])
+*Main> evalFBAEC [] (IfE (NumE 42) FalseE TrueE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)) [])
+
+-- Func Test Case
 
 *Main> evalFBAEC [] (LambdaE "x" (NumE 3))
 Just (ClosureV "x" (Lambda "x" (Num 3)) [])
