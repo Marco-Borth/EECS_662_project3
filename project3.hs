@@ -138,11 +138,41 @@ elabFBAEC :: FBAEC -> FAE
 elabFBAEC (NumE n) = Num n
 elabFBAEC (PlusE l r) = Plus (elabFBAEC l) (elabFBAEC r)
 elabFBAEC (MinusE l r) = Minus (elabFBAEC l) (elabFBAEC r)
+
 elabFBAEC (TrueE) =
   let i = "bool"
       t = (Num 1)
       f = (Num 0)
    in App (App (Lambda i (Lambda i t)) f) t
+
+elabFBAEC (FalseE) =
+ let i = "bool"
+   t = (Num 1)
+   f = (Num 0)
+  in App (App (Lambda i (Lambda i f)) t) t
+
+elabFBAEC (AndE x y) =
+ let i = "bool"
+   t = (Num 1)
+   f = (Num 0)
+  in App (App (Lambda "x" (Lambda "y" x)) y) f
+
+elabFBAEC (OrE x y) =
+ let i = "bool"
+   t = (Num 1)
+   f = (Num 0)
+  in App (App (Lambda "x" (Lambda "y" x)) t) y
+
+elabFBAEC (NotE x) =
+ let i = "bool"
+   t = (Num 1)
+   f = (Num 0)
+  in App (Lambda "x" x) f
+
+elabFBAEC (IfE c t e) =
+if elabFBAEC c == Num 1 -- if c == TrueE
+  then elabFBAEC t
+  else elabFBAEC e
 
 elabFBAEC (LambdaE s a) = Lambda s (elabFBAEC a)
 elabFBAEC (AppE f a) = App (elabFBAEC f) (elabFBAEC a)

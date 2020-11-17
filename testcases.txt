@@ -2,7 +2,7 @@
 -- file Author: Marco Borth, 2894114
 -- description: text file containing all Test cases for functions tested with Linux Terminal.
 
--- evalDynFAE Test Cases
+-- 1. evalDynFAE Test Cases
 *Main> evalDynFAE [] (Num 5)
 Just (Num 5)
 
@@ -67,7 +67,7 @@ Nothing
 
 
 
--- evalStatFAE Test Cases
+-- 2. evalStatFAE Test Cases
 *Main> evalStatFAE [] (Num 3)
 Just (NumV 3)
 
@@ -95,7 +95,7 @@ Just (ClosureV "x" (Id "x") [])
 
 
 
---elabFBAE Test Cases
+-- 3.1. elabFBAE Test Cases
 *Main> elabFBAE (NumD 5)
 Num 5
 
@@ -123,7 +123,7 @@ Id "fives"
 
 
 
---evalFBAE Test Cases
+-- 3.2. evalFBAE Test Cases
 *Main> evalFBAE [] (NumD 4)
 Just (NumV 4)
 
@@ -141,7 +141,7 @@ CallStack (from HasCallStack):
 
 
 
---elabFBAEC Test Cases
+-- 4.1. elabFBAEC Test Cases
 *Main> elabFBAEC (NumE 4)
 Num 4
 
@@ -172,7 +172,7 @@ Id "cruise"
 
 
 
---evalFBAEC Test Cases
+-- 4.2. evalFBAEC Test Cases
 *Main> evalFBAEC [] (NumE 5)
 Just (NumV 5)
 
