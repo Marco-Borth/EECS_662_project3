@@ -1,0 +1,204 @@
+-- file Name: testcases.txt
+-- file Author: Marco Borth, 2894114
+-- description: text file containing all Test cases for functions tested with Linux Terminal.
+
+-- evalDynFAE Test Cases
+*Main> evalDynFAE [] (Num 5)
+Just (Num 5)
+
+*Main> evalDynFAE [] (Plus (Num 5) (Num 6))
+Just (Num 11)
+
+*Main> evalDynFAE [] (Minus (Num 8) (Num 7))
+Just (Num 1)
+*Main> evalDynFAE [] (Minus (Num 8) (Num 8))
+Just (Num 0)
+*Main> evalDynFAE [] (Minus (Num 8) (Num 9))
+Just (Num *** Exception: ERROR: Resulting Difference must be Natural
+CallStack (from HasCallStack):
+  error, called at p3.hs:36:14 in main:Main
+
+*Main> evalDynFAE [] (Lambda "x" (Num 4))
+Just (Lambda "x" (Num 4))
+*Main> evalDynFAE [] (Lambda "x" (Plus (Num 45) (Num 23)))
+Just (Lambda "x" (Plus (Num 45) (Num 23)))
+*Main> evalDynFAE [] (Lambda "x" (Minus (Num 45) (Num 34)))
+Just (Lambda "x" (Minus (Num 45) (Num 34)))
+*Main> evalDynFAE [] (Lambda "x" (Minus (Num 45) (Num 45)))
+Just (Lambda "x" (Minus (Num 45) (Num 45)))
+*Main> evalDynFAE [] (Lambda "x" (Minus (Num 45) (Num 56)))
+Just (Lambda "x" (Minus (Num 45) (Num 56)))
+
+*Main> evalDynFAE [] (App (Num 5) (Num 6))
+Nothing
+*Main> evalDynFAE [] (App (Plus (Num 4) (Num 8)) (Num 5))
+Nothing
+*Main> evalDynFAE [] (App (Num 4) (Plus (Num 4) (Num 8)))
+Nothing
+*Main> evalDynFAE [] (App (Minus (Num 4) (Num 8)) (Num 6))
+Nothing
+*Main> evalDynFAE [] (App (Num 4) (Minus (Num 4) (Num 8)))
+Nothing
+*Main> evalDynFAE [] (App (Lambda "x" (Num 8)) (Num 2))
+Just (Num 8)
+*Main> evalDynFAE [] (App (Lambda "x" (Num 8)) (Plus (Num 6) (Num 9)))
+Just (Num 8)
+*Main> evalDynFAE [] (App (Lambda "x" (Num 8)) (Lambda "y" (Num 6)))
+Just (Num 8)
+*Main> evalDynFAE [] (App (Lambda "x" (Plus (Num 4) (Num 7))) (Num 2))
+Just (Num 11)
+*Main> evalDynFAE [] (App (Lambda "x" (Minus (Num 53) (Num 7))) (Num 2))
+Just (Num 46)
+*Main> evalDynFAE [] (App (Lambda "x" (Minus (Num 53) (Num 53))) (Num 2))
+Just (Num 0)
+*Main> evalDynFAE [] (App (Lambda "x" (Minus (Num 53) (Num 54))) (Num 2))
+Just (Num *** Exception: ERROR: Resulting Difference must be Natural
+CallStack (from HasCallStack):
+  error, called at project3.hs:39:14 in main:Main
+*Main> evalDynFAE [] (App (Lambda "x" (Lambda "y" (Num 54))) (Num 2))
+Just (Lambda "y" (Num 54))
+*Main> evalDynFAE [] (App (App (Lambda "x" (Lambda "y" (Num 54))) (Num 2)) (Num 100))
+Just (Num 54)
+*Main> evalDynFAE [] (App (Num 4) (Lambda "x" (Num 8)))
+Nothing
+
+*Main> evalDynFAE [] (Id "ten")
+Nothing
+
+
+
+-- evalStatFAE Test Cases
+*Main> evalStatFAE [] (Num 3)
+Just (NumV 3)
+
+*Main> evalStatFAE [] (Plus (Num 3) (Num 4) )
+Just (NumV 7)
+
+*Main> evalStatFAE [] (Minus (Num 5) (Num 4) )
+Just (NumV 1)
+*Main> evalStatFAE [] (Minus (Num 5) (Num 5) )
+Just (NumV 0)
+*Main> evalStatFAE [] (Minus (Num 5) (Num 6) )
+Just (NumV *** Exception: ERROR: Resulting Difference must be Natural
+CallStack (from HasCallStack):
+  error, called at project3.hs:39:14 in main:Main
+
+*Main> evalStatFAE [] (Lambda "x" (Num 5))
+Just (ClosureV "x" (Lambda "x" (Num 5)) [])
+
+*Main> evalStatFAE [] (App (Num 3) (Num 5))
+Just (ClosureV "x" (App (Num 3) (Num 5)) [])
+
+*Main> evalStatFAE [] (Id "x")
+Just (ClosureV "x" (Id "x") [])
+
+
+
+
+--elabFBAE Test Cases
+*Main> elabFBAE (NumD 5)
+Num 5
+
+*Main> elabFBAE (PlusD (NumD 3) (NumD 4))
+Plus (Num 3) (Num 4)
+
+*Main> elabFBAE (MinusD (NumD 3) (NumD 2))
+Minus (Num 3) (Num 2)
+*Main> elabFBAE (MinusD (NumD 3) (NumD 3))
+Minus (Num 3) (Num 3)
+*Main> elabFBAE (MinusD (NumD 3) (NumD 4))
+Minus (Num 3) (Num 4)
+
+*Main> elabFBAE (LambdaD "x" (NumD 6))
+Lambda "x" (Num 6)
+
+*Main> elabFBAE (AppD (NumD 3) (NumD 6))
+App (Num 3) (Num 6)
+
+*Main> elabFBAE (BindD "x" (NumD 2) (NumD 5))
+App (Lambda "x" (Num 2)) (Num 5)
+
+*Main> elabFBAE (IdD "fives")
+Id "fives"
+
+
+
+--evalFBAE Test Cases
+*Main> evalFBAE [] (NumD 4)
+Just (NumV 4)
+
+*Main> evalFBAE [] (PlusD (NumD 11) (NumD 22))
+Just (NumV 33)
+
+*Main> evalFBAE [] (MinusD (NumD 22) (NumD 15))
+Just (NumV 7)
+*Main> evalFBAE [] (MinusD (NumD 22) (NumD 22))
+Just (NumV 0)
+*Main> evalFBAE [] (MinusD (NumD 22) (NumD 25))
+Just (NumV *** Exception: ERROR: Resulting Difference must be Natural
+CallStack (from HasCallStack):
+  error, called at project3.hs:39:14 in main:Main
+
+
+
+--elabFBAEC Test Cases
+*Main> elabFBAEC (NumE 4)
+Num 4
+
+*Main> elabFBAEC (PlusE (NumE 1) (NumE 2))
+Plus (Num 1) (Num 2)
+
+*Main> elabFBAEC (MinusE (NumE 1) (NumE 2))
+Minus (Num 1) (Num 2)
+*Main> elabFBAEC (MinusE (NumE 2) (NumE 2))
+Minus (Num 2) (Num 2)
+*Main> elabFBAEC (MinusE (NumE 3) (NumE 2))
+Minus (Num 3) (Num 2)
+
+*Main> elabFBAEC (TrueE)
+App (App (Lambda "string" (Lambda "string" (Num 1))) (Num 0)) (Num 1)
+
+*Main> elabFBAEC (LambdaE "two" (NumE 2))
+Lambda "two" (Num 2)
+
+*Main> elabFBAEC (AppE (NumE 3) (NumE 2))
+App (Num 3) (Num 2)
+
+*Main> elabFBAEC (BindE "x" (NumE 2) (NumE 5))
+App (Lambda "x" (Num 2)) (Num 5)
+
+*Main> elabFBAEC (IdE "cruise")
+Id "cruise"
+
+
+
+--evalFBAEC Test Cases
+*Main> evalFBAEC [] (NumE 5)
+Just (NumV 5)
+
+*Main> evalFBAEC [] (PlusE (NumE 1) (NumE 6))
+Just (NumV 7)
+
+*Main> evalFBAEC [] (MinusE (NumE 11) (NumE 6))
+Just (NumV 5)
+*Main> evalFBAEC [] (MinusE (NumE 11) (NumE 11))
+Just (NumV 0)
+*Main> evalFBAEC [] (MinusE (NumE 11) (NumE 16))
+Just (NumV *** Exception: ERROR: Resulting Difference must be Natural
+CallStack (from HasCallStack):
+  error, called at project3.hs:39:14 in main:Main
+
+*Main> evalFBAEC [] (TrueE)
+Just (ClosureV "x" (App (App (Lambda "bool" (Lambda "bool" (Num 1))) (Num 0)) (Num 1)) [])
+
+*Main> evalFBAEC [] (LambdaE "x" (NumE 3))
+Just (ClosureV "x" (Lambda "x" (Num 3)) [])
+
+*Main> evalFBAEC [] (AppE (NumE 7) (NumE 3))
+Just (ClosureV "x" (App (Num 7) (Num 3)) [])
+
+*Main> evalFBAEC [] (BindE "i" (NumE 7) (NumE 3))
+Just (ClosureV "x" (App (Lambda "i" (Num 7)) (Num 3)) [])
+
+*Main> evalFBAEC [] (IdE "x")
+Just (ClosureV "x" (Id "x") [])
