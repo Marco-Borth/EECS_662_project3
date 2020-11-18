@@ -41,9 +41,9 @@ evalAE (Minus l r) =
 subst::String -> FAE -> FAE -> FAE
 subst x v (Num n) = Num (evalAE (Num n))
 subst x v (Plus l r) = Num (evalAE (Plus l r)) -- Plus (subst x v l) (subst x v r)
-subst x v (Minus l r) = Num(evalAE (Minus l r))
+subst x v (Minus l r) = Num (evalAE (Minus l r))
 subst x v (Lambda i b) = Lambda i (subst x v b)
---  if i == "inc"
+--  if x == "inc"
 --    then Num (evalAE (Plus b (Num 1)))
 --    else Lambda i (subst x v b)
 subst x v (Id a) =
@@ -52,7 +52,11 @@ subst x v (Id a) =
     else Id a
 
 evalDynFAE :: Env -> FAE -> (Maybe FAE)
-evalDynFAE e (Num n) = Just (Num n)
+evalDynFAE e (Num n) = Just (Num n) -- Just ((Num n) (concat [e,[("n",(Num n))]]))
+-- do {
+--  concat [e,[("n", n)]];
+--  Just (Num n)
+--}
 evalDynFAE e (Plus l r) = Just (Num (evalAE (Plus l r) ) )
 evalDynFAE e (Minus l r) = Just (Num (evalAE (Minus l r) ) )
 evalDynFAE e (Lambda i b) = Just (Lambda i b)
@@ -151,22 +155,22 @@ elabFBAEC (FalseE) =
      f = (Num 0)
   in App (App (Lambda i (Lambda i f)) t) t
 
-elabFBAEC (AndE x y) =
+elabFBAEC (AndE x y) = -- (App (Lambda "&&" (elabFBAEC x)) (elabFBAEC y))
  let i = "x"
      j = "y"
      t = (Num 1)
      f = (Num 0)
   in App (App (Lambda i (Lambda j (elabFBAEC x) )) (elabFBAEC y)) f
 
-elabFBAEC (OrE x y) =
- let i = "x"
-     j = "y"
-     t = (Num 1)
-     f = (Num 0)
+elabFBAEC (OrE x y) = -- (App (Lambda "||" (elabFBAEC x)) (elabFBAEC y))
+  let i = "x"
+      j = "y"
+      t = (Num 1)
+      f = (Num 0)
   in App (App (Lambda i (Lambda j (elabFBAEC x) )) t) (elabFBAEC y)
 
 elabFBAEC (NotE x) =
- let i = "x"
+ let i = "~"
      f = (Num 0)
   in App (Lambda i (elabFBAEC x) ) f
 
